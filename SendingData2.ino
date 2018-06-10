@@ -11,13 +11,17 @@
 #include "TheDudeParams.h" // Change this file params
 
 
+
 //INIT
 const char* ssid     = MY_SSID;
 const char* password = MY_PWD;
-const char* host = MY_HOST; 
+const char* host = MY_HOST;
 const char* hostIP = MY_HOSTIP;
 String url = PAGE_URL;
+int count = 1;
 WiFiServer server(80);
+
+
 
 // Fucntion to connect WiFi
 void connectWifi(const char* ssid, const char* password) {
@@ -27,20 +31,21 @@ void connectWifi(const char* ssid, const char* password) {
   PRINTDEBUG(ssid);
   WiFi.disconnect();
   WiFi.mode(WIFI_STA);
+
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED && WiFiCounter < 30) {
-    
+
     delay(1000);
     WiFiCounter++;
-    
+
     PRINTDEBUG(".");
   }
 
-        PRINTDEBUG("");
-        PRINTDEBUG("WiFi connected");
-        PRINTDEBUG("IP address: ");
-        PRINTDEBUG(WiFi.localIP());
-    
+  PRINTDEBUG("");
+  PRINTDEBUG("WiFi connected");
+  PRINTDEBUG("IP address: ");
+  PRINTDEBUG(WiFi.localIP());
+
 }
 
 
@@ -78,42 +83,54 @@ void loop() {
   }
 
 
-// Use WiFiClient class to create TCP connections
+  // Use WiFiClient class to create TCP connections
   WiFiClient client;
   const int httpPort = 80;
   if (!client.connect(host, httpPort)) {
     Serial.println("connection failed");
     return;
   } else {
-  // We now create a URI for the request
-  String url = "/ewsf/report.php/";
-  url += "?myState=";
-  url += 20;
+    // We now create a URI for the request
+    String url = "/ewsf/report.php/";
+    url += "?myState=";
+    url += 20;
 
-  Serial.print("Requesting URL: ");
-  Serial.println(url);
+    Serial.print("Requesting URL: ");
+    Serial.println(url);
 
-  // This will send the request to the server
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
-               "Connection: close\r\n\r\n");
-  unsigned long timeout = millis();
-  while (client.available() == 0) {
-    if (millis() - timeout > 5000) {
-      Serial.println(">>> Client Timeout !");
-      client.stop();
-      return;
+    // This will send the request to the server
+    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                 "Host: " + host + "\r\n" +
+                 "Connection: close\r\n\r\n");
+    unsigned long timeout = millis();
+    while (client.available() == 0) {
+      if (millis() - timeout > 5000) {
+        Serial.println(">>> Client Timeout !");
+        client.stop();
+        return;
+      }
     }
-  }
 
-  // Read all the lines of the reply from server and print them to Serial
-  while (client.available()) {
-    String line = client.readStringUntil('\r');
-    Serial.print(line);
-  }
+    // Read all the lines of the reply from server and print them to Serial
+    while (client.available()) {
 
-  Serial.println();
-  Serial.println("closing connection");
+      String line = client.readStringUntil('\r');
+
+      Serial.print("\n hi i am ammar : \n");
+      Serial.print(count);
+      Serial.print("\n");
+      Serial.print(line);
+      line.trim();
+      Serial.print("\n this is string lenght 1 \n");
+      Serial.print(line.length());
+      Serial.print("\n this is string lenght 2 \n");
+      count += 1;
+
+      //the if
+    }
+
+    Serial.println();
+    Serial.println("closing connection");
 
   }
 }
